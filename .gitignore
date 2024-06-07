@@ -10,6 +10,7 @@ galactica/result/
 galactica/saved_model/
 processed_data/
 saved_model/
+myenv/
 
 __pycache__/
 *.py[cod]
