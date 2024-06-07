@@ -438,7 +438,7 @@ def train(year=2023, model_name="scibert"):
     import random
 
     # # Set your desired sample size
-    SAMPLE_SIZE = 1000
+    SAMPLE_SIZE = 100
 
     # # Randomly select a subset of your data
     train_texts_sample = random.sample(train_texts, SAMPLE_SIZE) # train_texts sampling instead
