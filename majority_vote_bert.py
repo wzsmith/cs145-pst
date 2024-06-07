@@ -852,7 +852,7 @@ def eval_test_papers_bert(year=2023, model_name="scibert", use_majority_vote=Tru
        if f_idx % 20 == 0:
            print("map until now", np.mean(metrics), len(metrics), cur_map)
                  
-def gen_kddcup_valid_submission_bert(model_name="scibert"):
+def gen_kddcup_valid_submission_bert(model_name="scibert", num_runs = 3):
     print("model name", model_name)
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_valid_wo_ans.json")
@@ -940,8 +940,24 @@ def gen_kddcup_valid_submission_bert(model_name="scibert"):
             y_score[bib_idx] = float(utils.sigmoid(predicted_scores[ii]))
         
         sub_dict[cur_pid] = y_score
-    
-    utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
+    # Apply majority voting
+    majority_voted_sub_dict = {}
+
+    for pid, scores in sub_dict.items():
+        majority_voted_scores = []
+
+        for i in range(len(scores)):
+            # Gather predictions for the i-th reference across multiple runs
+            predictions = [sub_dict[pid][i] for sub_dict in sub_dicts[:num_runs]]
+
+            # Apply majority voting using your majority_vote function
+            majority_vote_prediction = majority_vote(predictions)
+            majority_voted_scores.append(majority_vote_prediction)
+
+        majority_voted_sub_dict[pid] = majority_voted_scores
+      
+    utils.dump_json(majority_voted_sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
+    # utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
 
 
 if __name__ == "__main__":
