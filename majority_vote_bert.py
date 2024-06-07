@@ -948,7 +948,7 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_runs = 3):
 
         for i in range(len(scores)):
             # Gather predictions for the i-th reference across multiple runs
-            predictions = [sub_dict[pid][i] for sub_dict in sub_dicts[:num_runs]]
+            predictions = [sub_dict[pid][i] for sub_dict in sub_dict[:num_runs]]
 
             # Apply majority voting using your majority_vote function
             majority_vote_prediction = majority_vote(predictions)
