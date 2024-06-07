@@ -689,7 +689,7 @@ def eval_test_papers_bert(year=2023, model_name="scibert"):
     print("bert average map", np.mean(metrics), len(metrics))
 '''
 
-def eval_test_papers_bert(year=2023, model_name="scibert", use_majority_vote=False):
+def eval_test_papers_bert(year=2023, model_name="scibert", use_majority_vote=True):
    print("model name", model_name)
    data_year_dir = join(settings.DATA_TRACE_DIR, str(year))
    papers_test = utils.load_json(data_year_dir, "paper_source_trace_test.json")
