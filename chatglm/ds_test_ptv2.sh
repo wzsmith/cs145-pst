@@ -1,7 +1,7 @@
 PRE_SEQ_LEN=128
 LR=2e-2
 
-CUDA_VISIBLE_DEVICES=2 python3 test.py \
+CUDA_VISIBLE_DEVICES=2 python3 chatglm/test.py \
     --do_predict \
     --test_file data/test2.json \
     --prompt_column content \

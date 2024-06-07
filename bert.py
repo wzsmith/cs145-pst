@@ -434,12 +434,38 @@ def train(year=2023, model_name="scibert"):
 
     criterion = torch.nn.CrossEntropyLoss(weight=class_weight)
 
-    train_features = convert_examples_to_inputs(train_texts, train_labels, MAX_SEQ_LENGTH, tokenizer, verbose=0)
+    ##### Sampling start
+    import random
+
+    # # Set your desired sample size
+    SAMPLE_SIZE = 1000
+
+    # # Randomly select a subset of your data
+    train_texts_sample = random.sample(train_texts, SAMPLE_SIZE) # train_texts sampling instead
+    train_labels_sample = random.sample(train_labels, SAMPLE_SIZE)
+
+    train_features = convert_examples_to_inputs(train_texts_sample, train_labels_sample, MAX_SEQ_LENGTH, tokenizer, verbose=0)
     dev_features = convert_examples_to_inputs(dev_texts, dev_labels, MAX_SEQ_LENGTH, tokenizer)
 
     BATCH_SIZE = 16
     train_dataloader = get_data_loader(train_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
     dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
+
+    #### Sampling end
+
+    # train_features_sample = convert_examples_to_inputs(train_texts_sample, train_labels_sample, MAX_SEQ_LENGTH, tokenizer, verbose=0)
+    # train_dataloader_sample = get_data_loader(train_features_sample, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
+
+    ### OLD CODE: 
+
+    # train_features = convert_examples_to_inputs(train_texts, train_labels, MAX_SEQ_LENGTH, tokenizer, verbose=0)
+    # dev_features = convert_examples_to_inputs(dev_texts, dev_labels, MAX_SEQ_LENGTH, tokenizer)
+
+    # BATCH_SIZE = 16
+    # train_dataloader = get_data_loader(train_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
+    # dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
+
+    ####
 
     GRADIENT_ACCUMULATION_STEPS = 1
     NUM_TRAIN_EPOCHS = 20
