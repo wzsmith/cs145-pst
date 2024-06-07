@@ -422,7 +422,7 @@ def majority_vote(predictions):
     majority = np.mean(predictions, axis=0)  # You can also use np.median for majority vote
     return np.round(majority).astype(int)
                  
-def gen_kddcup_valid_submission_bert(model_name="scibert", num_runs = 3):
+def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
     print("model name", model_name)
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_valid_wo_ans.json")
@@ -490,44 +490,33 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_runs = 3):
         test_features = convert_examples_to_inputs(contexts_sorted, y_score, MAX_SEQ_LENGTH, tokenizer)
         test_dataloader = get_data_loader(test_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
 
-        predicted_scores = []
-        for step, batch in enumerate(test_dataloader):
-            batch = tuple(t.to(device) for t in batch)
-            input_ids, input_mask, segment_ids, label_ids = batch
+        all_predicted_scores = [] # Store predictions from multiple runs of the model
+        for _ in range(num_votes):
+            predicted_scores = []
+            for step, batch in enumerate(test_dataloader):
+                batch = tuple(t.to(device) for t in batch)
+                input_ids, input_mask, segment_ids, label_ids = batch
 
-            with torch.no_grad():
-                r = model(input_ids, attention_mask=input_mask,
-                                            token_type_ids=segment_ids, labels=label_ids)
-                tmp_eval_loss = r[0]
-                logits = r[1]
+                with torch.no_grad():
+                    r = model(input_ids, attention_mask=input_mask,
+                                                token_type_ids=segment_ids, labels=label_ids)
+                    tmp_eval_loss = r[0]
+                    logits = r[1]
 
-            cur_pred_scores = logits[:, 1].to('cpu').numpy()
-            predicted_scores.extend(cur_pred_scores)
+                cur_pred_scores = logits[:, 1].to('cpu').numpy()
+                predicted_scores.extend(cur_pred_scores)
+
+            all_predicted_scores.append(predicted_scores) # Add predictions to the list of multiple runs
         
-        for ii in range(len(predicted_scores)):
+        for ii in range(len(all_predicted_scores[0])): # Just use the first predictions for the length of this loop
             bib_idx = int(bib_sorted[ii][1:])
             # print("bib_idx", bib_idx)
-            y_score[bib_idx] = float(utils.sigmoid(predicted_scores[ii]))
+            votes = [float(utils.sigmoid(all_predicted_scores[vote_idx][ii])) for vote_idx in range(num_votes)] # Apply the sigmoid to every prediction made
+            y_score[bib_idx] = float(np.mean(votes)) # Take the mean of all the predictions, could try median too
         
         sub_dict[cur_pid] = y_score
-    # Apply majority voting
-    majority_voted_sub_dict = {}
-
-    for pid, scores in sub_dict.items():
-        majority_voted_scores = []
-
-        for i in range(len(scores)):
-            # Gather predictions for the i-th reference across multiple runs
-            predictions = [sub_dict[pid][i] for sub_dict in sub_dict[:num_runs]]
-
-            # Apply majority voting using your majority_vote function
-            majority_vote_prediction = majority_vote(predictions)
-            majority_voted_scores.append(majority_vote_prediction)
-
-        majority_voted_sub_dict[pid] = majority_voted_scores
-      
-    utils.dump_json(majority_voted_sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
-    # utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
+    
+    utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
 
 
 if __name__ == "__main__":
