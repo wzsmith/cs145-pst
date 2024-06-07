@@ -849,7 +849,7 @@ def eval_test_papers_bert(year=2023, model_name="scibert", use_majority_vote=Fal
        metrics.append(cur_map)
        f_idx += 1
        if f_idx % 20 == 0:
-           print("map until now", np.mean(metrics), len(metrics), cur_map
+           print("map until now", np.mean(metrics), len(metrics), cur_map)
                  
 def gen_kddcup_valid_submission_bert(model_name="scibert"):
     print("model name", model_name)
