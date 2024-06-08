@@ -299,7 +299,7 @@ def train(year=2023, model_name="scibert"):
 
     criterion = torch.nn.CrossEntropyLoss(weight=class_weight)
 
-    
+    '''
     ##### Sampling start
     import random
 
@@ -331,7 +331,7 @@ def train(year=2023, model_name="scibert"):
     BATCH_SIZE = 16
     train_dataloader = get_data_loader(train_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
     dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
-    '''
+    
     ####
 
     GRADIENT_ACCUMULATION_STEPS = 1
