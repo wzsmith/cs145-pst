@@ -32,7 +32,7 @@ def prepare_bert_input():
     y_train = []
     x_valid = []
     y_valid = []
-
+    print()
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_train_ans.json")
     n_papers = len(papers)

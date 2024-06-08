@@ -1,7 +1,7 @@
 import os
 from os.path import abspath, dirname, join
 
-
+print(__file__)
 PROJ_DIR = join(abspath(dirname(__file__)))
 DATA_DIR = join(PROJ_DIR, "data")
 OUT_DIR = join(PROJ_DIR, "out")
