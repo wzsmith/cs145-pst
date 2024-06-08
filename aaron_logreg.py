@@ -423,7 +423,11 @@ def majority_vote(predictions):
     majority = np.mean(predictions, axis=0)  # You can also use np.median for majority vote
     return np.round(majority).astype(int)
                  
-def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+def gen_kddcup_valid_submission_bert(model_name="scibert"):
     print("model name", model_name)
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_valid_wo_ans.json")
@@ -440,15 +444,11 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("device", device)
-    model = BertForSequenceClassification.from_pretrained(BERT_MODEL, num_labels = 2)
+    model = BertForSequenceClassification.from_pretrained(BERT_MODEL, num_labels=2)
     model.load_state_dict(torch.load(join(settings.OUT_DIR, "kddcup", model_name, "pytorch_model.bin")))
 
     model.to(device)
     model.eval()
-
-    BATCH_SIZE = 16
-    # metrics = []
-    # f_idx = 0
 
     xml_dir = join(data_dir, "paper-xml")
     sub_dict = {}
@@ -478,49 +478,43 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
                 n_refs = b_idx
 
         bib_to_contexts = utils.find_bib_context(xml)
-        # bib_sorted = sorted(bib_to_contexts.keys())
         bib_sorted = ["b" + str(ii) for ii in range(n_refs)]
-        
-        y_score = [0] * n_refs
+
+        y_scores = []
 
         assert len(sub_example_dict[cur_pid]) == n_refs
-        # continue
 
-        contexts_sorted = [" ".join(bib_to_contexts[bib]) for bib in bib_sorted]
+        for bib in bib_sorted:
+            contexts = " ".join(bib_to_contexts[bib])
+            features = convert_examples_to_inputs([contexts], [0], MAX_SEQ_LENGTH, tokenizer)
+            dataloader = get_data_loader(features, MAX_SEQ_LENGTH, 1, shuffle=False)
 
-        test_features = convert_examples_to_inputs(contexts_sorted, y_score, MAX_SEQ_LENGTH, tokenizer)
-        test_dataloader = get_data_loader(test_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
-
-        all_predicted_scores = [] # Store predictions from multiple runs of the model
-        for _ in range(num_votes):
-            print("Vote: ", _) # Print current vote
             predicted_scores = []
-            for step, batch in enumerate(test_dataloader):
-                batch = tuple(t.to(device) for t in batch)
-                input_ids, input_mask, segment_ids, label_ids = batch
+            with torch.no_grad():
+                for step, batch in enumerate(dataloader):
+                    batch = tuple(t.to(device) for t in batch)
+                    input_ids, input_mask, segment_ids, _ = batch
+                    logits = model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids)[0]
+                    predicted_scores.append(logits[:, 1].cpu().numpy())
 
-                with torch.no_grad():
-                    r = model(input_ids, attention_mask=input_mask,
-                                                token_type_ids=segment_ids, labels=label_ids)
-                    tmp_eval_loss = r[0]
-                    logits = r[1]
+            y_scores.append(predicted_scores[0])
 
-                cur_pred_scores = logits[:, 1].to('cpu').numpy()
-                predicted_scores.extend(cur_pred_scores)
+        X = np.array(y_scores)
+        X_scaled = StandardScaler().fit_transform(X)
 
-            all_predicted_scores.append(predicted_scores) # Add predictions to the list of multiple runs
+        # Assuming you have labels for your training data
+        # Replace `train_labels` with your actual labels
+        train_labels = [0] * len(bib_sorted)  # Replace with your actual labels
+        X_train, X_val, y_train, y_val = train_test_split(X_scaled, train_labels, test_size=0.2, random_state=42)
+
+        lr = LogisticRegression()
+        lr.fit(X_train, y_train)
+
+        y_score = lr.predict_proba(X_val)[:, 1]
         
-        for ii in range(len(all_predicted_scores[0])): # Just use the first predictions for the length of this loop
-            bib_idx = int(bib_sorted[ii][1:])
-            # print("bib_idx", bib_idx)
-            votes = [float(utils.sigmoid(all_predicted_scores[vote_idx][ii])) for vote_idx in range(num_votes)] # Apply the sigmoid to every prediction made
-            print(votes) # Test
-            y_score[bib_idx] = float(np.mean(votes)) # Take the mean of all the predictions, could try median too
-        
-        sub_dict[cur_pid] = y_score
-    
+        sub_dict[cur_pid] = y_score.tolist()
+
     utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
-
 
 if __name__ == "__main__":
     # prepare_train_test_data_for_bert()
