@@ -492,6 +492,7 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
 
         all_predicted_scores = [] # Store predictions from multiple runs of the model
         for _ in range(num_votes):
+            print("Vote: ", _) # Print current vote
             predicted_scores = []
             for step, batch in enumerate(test_dataloader):
                 batch = tuple(t.to(device) for t in batch)
@@ -512,6 +513,7 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
             bib_idx = int(bib_sorted[ii][1:])
             # print("bib_idx", bib_idx)
             votes = [float(utils.sigmoid(all_predicted_scores[vote_idx][ii])) for vote_idx in range(num_votes)] # Apply the sigmoid to every prediction made
+            print(votes) # Test
             y_score[bib_idx] = float(np.mean(votes)) # Take the mean of all the predictions, could try median too
         
         sub_dict[cur_pid] = y_score
