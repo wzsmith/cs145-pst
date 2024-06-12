@@ -421,6 +421,59 @@ def majority_vote(predictions):
     predictions = np.array(predictions)
     majority = np.mean(predictions, axis=0)  # You can also use np.median for majority vote
     return np.round(majority).astype(int)
+
+## FOR VISUALIZATIONS
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def evaluate_with_attention(model, dataloader, device, criterion):
+    model.eval()
+    
+    eval_loss = 0
+    nb_eval_steps = 0
+    predicted_labels, correct_labels = [], []
+    attention_weights = []  # Store attention weights
+
+    for step, batch in enumerate(tqdm(dataloader, desc="Evaluation iteration")):
+        batch = tuple(t.to(device) for t in batch)
+        input_ids, input_mask, segment_ids, label_ids = batch
+
+        with torch.no_grad():
+            r = model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+            logits = r[1]
+            tmp_eval_loss = criterion(logits, label_ids)
+
+            # Extract attention weights
+            attention_weights_batch = model.attention_weights[-1].detach().cpu().numpy()
+            attention_weights.append(attention_weights_batch)
+
+        outputs = np.argmax(logits.to('cpu'), axis=1)
+        label_ids = label_ids.to('cpu').numpy()
+
+        predicted_labels += list(outputs)
+        correct_labels += list(label_ids)
+
+        eval_loss += tmp_eval_loss.mean().item()
+        nb_eval_steps += 1
+
+    eval_loss = eval_loss / nb_eval_steps
+
+    correct_labels = np.array(correct_labels)
+    predicted_labels = np.array(predicted_labels)
+
+    attention_weights = np.concatenate(attention_weights, axis=0)  # Concatenate attention weights from all batches
+
+    # Plot heatmap of attention weights
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(attention_weights.mean(axis=0), cmap="viridis")
+    plt.xlabel("Query")
+    plt.ylabel("Key")
+    plt.title("Attention Heatmap")
+    plt.show()
+
+    return eval_loss, correct_labels, predicted_labels
+
+# Modify your training loop to use evaluate_with_attention instead of evaluate
                  
 def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
     print("model name", model_name)
