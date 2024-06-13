@@ -32,7 +32,7 @@ def prepare_bert_input():
     y_train = []
     x_valid = []
     y_valid = []
-    print()
+
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_train_ans.json")
     n_papers = len(papers)
@@ -299,12 +299,11 @@ def train(year=2023, model_name="scibert"):
 
     criterion = torch.nn.CrossEntropyLoss(weight=class_weight)
 
-    '''
     ##### Sampling start
     import random
 
     # # Set your desired sample size
-    SAMPLE_SIZE = 100
+    SAMPLE_SIZE = 30
 
     # # Randomly select a subset of your data
     train_texts_sample = random.sample(train_texts, SAMPLE_SIZE) # train_texts sampling instead
@@ -318,10 +317,11 @@ def train(year=2023, model_name="scibert"):
     dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
 
     #### Sampling end
-    '''
+  
     # train_features_sample = convert_examples_to_inputs(train_texts_sample, train_labels_sample, MAX_SEQ_LENGTH, tokenizer, verbose=0)
     # train_dataloader_sample = get_data_loader(train_features_sample, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
 
+    '''
     ### OLD CODE: 
 
     train_features = convert_examples_to_inputs(train_texts, train_labels, MAX_SEQ_LENGTH, tokenizer, verbose=0)
@@ -330,7 +330,7 @@ def train(year=2023, model_name="scibert"):
     BATCH_SIZE = 16
     train_dataloader = get_data_loader(train_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
     dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
-
+    '''
     ####
 
     GRADIENT_ACCUMULATION_STEPS = 1
@@ -421,59 +421,6 @@ def majority_vote(predictions):
     predictions = np.array(predictions)
     majority = np.mean(predictions, axis=0)  # You can also use np.median for majority vote
     return np.round(majority).astype(int)
-
-## FOR VISUALIZATIONS
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-def evaluate_with_attention(model, dataloader, device, criterion):
-    model.eval()
-    
-    eval_loss = 0
-    nb_eval_steps = 0
-    predicted_labels, correct_labels = [], []
-    attention_weights = []  # Store attention weights
-
-    for step, batch in enumerate(tqdm(dataloader, desc="Evaluation iteration")):
-        batch = tuple(t.to(device) for t in batch)
-        input_ids, input_mask, segment_ids, label_ids = batch
-
-        with torch.no_grad():
-            r = model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
-            logits = r[1]
-            tmp_eval_loss = criterion(logits, label_ids)
-
-            # Extract attention weights
-            attention_weights_batch = model.attention_weights[-1].detach().cpu().numpy()
-            attention_weights.append(attention_weights_batch)
-
-        outputs = np.argmax(logits.to('cpu'), axis=1)
-        label_ids = label_ids.to('cpu').numpy()
-
-        predicted_labels += list(outputs)
-        correct_labels += list(label_ids)
-
-        eval_loss += tmp_eval_loss.mean().item()
-        nb_eval_steps += 1
-
-    eval_loss = eval_loss / nb_eval_steps
-
-    correct_labels = np.array(correct_labels)
-    predicted_labels = np.array(predicted_labels)
-
-    attention_weights = np.concatenate(attention_weights, axis=0)  # Concatenate attention weights from all batches
-
-    # Plot heatmap of attention weights
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(attention_weights.mean(axis=0), cmap="viridis")
-    plt.xlabel("Query")
-    plt.ylabel("Key")
-    plt.title("Attention Heatmap")
-    plt.show()
-
-    return eval_loss, correct_labels, predicted_labels
-
-# Modify your training loop to use evaluate_with_attention instead of evaluate
                  
 def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
     print("model name", model_name)
@@ -499,11 +446,12 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
     model.eval()
 
     BATCH_SIZE = 16
-    # metrics = []
-    # f_idx = 0
-
     xml_dir = join(data_dir, "paper-xml")
     sub_dict = {}
+
+    chatgpt_model_name = "gpt2-medium"  # Adjust this according to your ChatGPT model
+    chatgpt_tokenizer = GPT2Tokenizer.from_pretrained(chatgpt_model_name)
+    chatgpt_model = GPT2LMHeadModel.from_pretrained(chatgpt_model_name).to(device)
 
     for paper in tqdm(papers):
         cur_pid = paper["_id"]
@@ -530,13 +478,11 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
                 n_refs = b_idx
 
         bib_to_contexts = utils.find_bib_context(xml)
-        # bib_sorted = sorted(bib_to_contexts.keys())
         bib_sorted = ["b" + str(ii) for ii in range(n_refs)]
         
         y_score = [0] * n_refs
 
         assert len(sub_example_dict[cur_pid]) == n_refs
-        # continue
 
         contexts_sorted = [" ".join(bib_to_contexts[bib]) for bib in bib_sorted]
 
@@ -545,7 +491,6 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
 
         all_predicted_scores = [] # Store predictions from multiple runs of the model
         for _ in range(num_votes):
-            print("Vote: ", _) # Print current vote
             predicted_scores = []
             for step, batch in enumerate(test_dataloader):
                 batch = tuple(t.to(device) for t in batch)
@@ -564,15 +509,28 @@ def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
         
         for ii in range(len(all_predicted_scores[0])): # Just use the first predictions for the length of this loop
             bib_idx = int(bib_sorted[ii][1:])
-            # print("bib_idx", bib_idx)
             votes = [float(utils.sigmoid(all_predicted_scores[vote_idx][ii])) for vote_idx in range(num_votes)] # Apply the sigmoid to every prediction made
-            print(votes) # Test
             y_score[bib_idx] = float(np.mean(votes)) # Take the mean of all the predictions, could try median too
         
-        sub_dict[cur_pid] = y_score
+        # Now, generate responses using ChatGPT
+        chatgpt_responses = []
+        for context in contexts_sorted:
+            # Generate response using ChatGPT
+            input_ids = chatgpt_tokenizer.encode(context, return_tensors="pt", max_length=512, truncation=True).to(device)
+            output = chatgpt_model.generate(input_ids, max_length=100, num_return_sequences=1, pad_token_id=chatgpt_tokenizer.eos_token_id)
+            response = chatgpt_tokenizer.decode(output[0], skip_special_tokens=True)
+            chatgpt_responses.append(response)
+        
+        # Convert ChatGPT responses to predictions
+        chatgpt_predictions = [1 if response.startswith("positive") else 0 for response in chatgpt_responses]
+        
+        # Apply majority vote between BERT and ChatGPT predictions
+        all_predictions = [chatgpt_predictions, y_score]
+        final_predictions = majority_vote(all_predictions)
+        
+        sub_dict[cur_pid] = final_predictions
     
     utils.dump_json(sub_dict, join(settings.OUT_DIR, "kddcup", model_name), "valid_submission_scibert.json")
-
 
 if __name__ == "__main__":
     # prepare_train_test_data_for_bert()
