@@ -1,5 +1,5 @@
 import json
-
+import os
 
 def avg_precision(validate_json_filepath, submission_json_filepath, annotated_result_filepath):
     """
@@ -95,7 +95,13 @@ def influential_papers(validate_json_filepath, submission_json_filepath):
         if paper_influence_dict[paper] == 0:
             del paper_influence_dict[paper]
     paper_influence_dict = sorted(paper_influence_dict.items(), key=lambda item: item[1], reverse=True)
-    return paper_influence_dict
+    
+    json_dict_keys = ["_id", "avgImportanceScore"]
+    json_dict_list = [dict(zip(json_dict_keys, list(paper))) for paper in paper_influence_dict]    
+    
+    with open(os.path.join(os.getcwd(), "influentialPapers.json"), "w") as outfile:
+        json.dump(json_dict_list, outfile, indent=4)
+    return json_dict_list
 
 if __name__ == "__main__":
     # Change filepaths to proper locations when running locally
@@ -106,6 +112,6 @@ if __name__ == "__main__":
     avg_prec_list = avg_precision(validate_json_filepath, submission_json_filepath, annotated_result_filepath)
     print(f"The mean average precision is: {mean_avg_precision(avg_prec_list)}")
 
-    print(f"The most influential papers are:
-          {influential_papers(validate_json_filepath, submission_json_filepath)}")
+    print(f"The most influential papers are: \
+           \n{influential_papers(validate_json_filepath, submission_json_filepath)}")
 

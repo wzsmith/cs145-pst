@@ -1,0 +1,378 @@
+[
+    {
+        "_id": "619321425244ab9dcbbb4aba",
+        "avgImportanceScore": 1.6530108776546246
+    },
+    {
+        "_id": "619716445244ab9dcb189946",
+        "avgImportanceScore": 1.3176366909629698
+    },
+    {
+        "_id": "60c402f491e011d44febefa7",
+        "avgImportanceScore": 1.2927389559838705
+    },
+    {
+        "_id": "618895205244ab9dcb40a5db",
+        "avgImportanceScore": 1.268584598640395
+    },
+    {
+        "_id": "6209c8265aee126c0f1e7faa",
+        "avgImportanceScore": 1.2242314697576684
+    },
+    {
+        "_id": "61397b715244ab9dcb323a92",
+        "avgImportanceScore": 1.008857550498372
+    },
+    {
+        "_id": "6201df4b5aee126c0f64e029",
+        "avgImportanceScore": 1.0055673980083382
+    },
+    {
+        "_id": "618ddb455244ab9dcbda8f5f",
+        "avgImportanceScore": 1.000569912629961
+    },
+    {
+        "_id": "616ce5a15244ab9dcbacfc10",
+        "avgImportanceScore": 0.9881425542305764
+    },
+    {
+        "_id": "619eff455244ab9dcbddef84",
+        "avgImportanceScore": 0.9561648515755394
+    },
+    {
+        "_id": "617a16125244ab9dcbdb3fc6",
+        "avgImportanceScore": 0.9533549014680454
+    },
+    {
+        "_id": "61a98b065244ab9dcb9585bc",
+        "avgImportanceScore": 0.9511195581166809
+    },
+    {
+        "_id": "61aed0dc5244ab9dcb3a77fd",
+        "avgImportanceScore": 0.9497291084450143
+    },
+    {
+        "_id": "6201df495aee126c0f64dbb4",
+        "avgImportanceScore": 0.9404716998765048
+    },
+    {
+        "_id": "619321425244ab9dcbbb4a76",
+        "avgImportanceScore": 0.924198308479921
+    },
+    {
+        "_id": "6173f1bc91e0118698c047f4",
+        "avgImportanceScore": 0.9232375916475575
+    },
+    {
+        "_id": "61f8a4c35aee126c0fee04fa",
+        "avgImportanceScore": 0.9181349043561953
+    },
+    {
+        "_id": "61fb47e15aee126c0f873a34",
+        "avgImportanceScore": 0.9134387127171185
+    },
+    {
+        "_id": "61f753205aee126c0f9c2149",
+        "avgImportanceScore": 0.9049087859804125
+    },
+    {
+        "_id": "60cd578491e011329faa21b0",
+        "avgImportanceScore": 0.6669662030039853
+    },
+    {
+        "_id": "61f753205aee126c0f9c2174",
+        "avgImportanceScore": 0.6546323003886672
+    },
+    {
+        "_id": "61aed0d85244ab9dcb3a70c5",
+        "avgImportanceScore": 0.6515289374255457
+    },
+    {
+        "_id": "60b1a60491e0115374595823",
+        "avgImportanceScore": 0.6509604855016591
+    },
+    {
+        "_id": "6180ac435244ab9dcb793a8f",
+        "avgImportanceScore": 0.6483999215033492
+    },
+    {
+        "_id": "606c48e691e0114248cd01a0",
+        "avgImportanceScore": 0.6391587151888098
+    },
+    {
+        "_id": "61494d445244ab9dcbed36b1",
+        "avgImportanceScore": 0.6241931203682293
+    },
+    {
+        "_id": "60c58a2791e011368ce8c24f",
+        "avgImportanceScore": 0.6194505470751641
+    },
+    {
+        "_id": "61c5694d5244ab9dcb0b3871",
+        "avgImportanceScore": 0.6177095267422243
+    },
+    {
+        "_id": "616e37435244ab9dcbd1a7bc",
+        "avgImportanceScore": 0.6093727424332582
+    },
+    {
+        "_id": "616ce5a55244ab9dcbacff30",
+        "avgImportanceScore": 0.602922255638034
+    },
+    {
+        "_id": "619e189e6750f82b1e8c7102",
+        "avgImportanceScore": 0.5994331612913937
+    },
+    {
+        "_id": "612c4c2c5244ab9dcbca280d",
+        "avgImportanceScore": 0.5976666986938506
+    },
+    {
+        "_id": "6180ac445244ab9dcb793def",
+        "avgImportanceScore": 0.5929886866651319
+    },
+    {
+        "_id": "615e65735244ab9dcbf21774",
+        "avgImportanceScore": 0.5925106351794069
+    },
+    {
+        "_id": "61baae6d5244ab9dcb6463e3",
+        "avgImportanceScore": 0.5867824553296708
+    },
+    {
+        "_id": "618b38575244ab9dcb710ce2",
+        "avgImportanceScore": 0.3577620528924084
+    },
+    {
+        "_id": "60829fe091e0118612e3f5b6",
+        "avgImportanceScore": 0.35307992244237507
+    },
+    {
+        "_id": "60531d9f91e011547ddf545f",
+        "avgImportanceScore": 0.35071503563717665
+    },
+    {
+        "_id": "5ff880e391e011c83266b1a3",
+        "avgImportanceScore": 0.3505915478487082
+    },
+    {
+        "_id": "606c685691e0114248cd042d",
+        "avgImportanceScore": 0.34960942712830195
+    },
+    {
+        "_id": "61a839675244ab9dcbb150ba",
+        "avgImportanceScore": 0.34960942712830195
+    },
+    {
+        "_id": "60e7a74091e011dcbc23af3d",
+        "avgImportanceScore": 0.3464147529881833
+    },
+    {
+        "_id": "619715f95244ab9dcb1855b0",
+        "avgImportanceScore": 0.3297672909567245
+    },
+    {
+        "_id": "6173f1c391e0118698c04c2b",
+        "avgImportanceScore": 0.3270724315843331
+    },
+    {
+        "_id": "61dd329e6750f82ad426acbd",
+        "avgImportanceScore": 0.32445896492456483
+    },
+    {
+        "_id": "61fb47e05aee126c0f8739a2",
+        "avgImportanceScore": 0.32445896492456483
+    },
+    {
+        "_id": "601bbb7391e011fcd67ef13a",
+        "avgImportanceScore": 0.32363098927054945
+    },
+    {
+        "_id": "60cad57691e011b32937411b",
+        "avgImportanceScore": 0.3200642014745258
+    },
+    {
+        "_id": "6173f1bc91e0118698c04812",
+        "avgImportanceScore": 0.3191388971425181
+    },
+    {
+        "_id": "611106eb91e0117e7f3cdad1",
+        "avgImportanceScore": 0.3191388971425181
+    },
+    {
+        "_id": "608a961fe4510cd7c870dcac",
+        "avgImportanceScore": 0.3191388971425181
+    },
+    {
+        "_id": "6205d3ef5aee126c0ff1cfe3",
+        "avgImportanceScore": 0.3146995025806784
+    },
+    {
+        "_id": "61bc001b5244ab9dcba3fb36",
+        "avgImportanceScore": 0.3142362451088145
+    },
+    {
+        "_id": "6201df495aee126c0f64dbb6",
+        "avgImportanceScore": 0.3141961862792355
+    },
+    {
+        "_id": "603e16ea91e01129ef28fcd2",
+        "avgImportanceScore": 0.31190880690234124
+    },
+    {
+        "_id": "61c2974b5244ab9dcbcf1ee1",
+        "avgImportanceScore": 0.31057703461093145
+    },
+    {
+        "_id": "61c145ba5244ab9dcb84f2bc",
+        "avgImportanceScore": 0.30941034716473037
+    },
+    {
+        "_id": "60c2fb6191e0117e30ca2951",
+        "avgImportanceScore": 0.30867486138795336
+    },
+    {
+        "_id": "60d6992491e011839f53ce47",
+        "avgImportanceScore": 0.30867486138795336
+    },
+    {
+        "_id": "61bff4275244ab9dcb79c78b",
+        "avgImportanceScore": 0.30867486138795336
+    },
+    {
+        "_id": "617b66765244ab9dcbb6a815",
+        "avgImportanceScore": 0.30867486138795336
+    },
+    {
+        "_id": "618b64306750f8456ca9f190",
+        "avgImportanceScore": 0.30867486138795336
+    },
+    {
+        "_id": "62008da15aee126c0fbd19e0",
+        "avgImportanceScore": 0.30735606780373054
+    },
+    {
+        "_id": "60b6e7b191e011903fc2b99a",
+        "avgImportanceScore": 0.30601374545606896
+    },
+    {
+        "_id": "61fc99465aee126c0fcdcbf7",
+        "avgImportanceScore": 0.3059938622676229
+    },
+    {
+        "_id": "60cd884d91e011329faa23c3",
+        "avgImportanceScore": 0.3059938622676229
+    },
+    {
+        "_id": "613586d45244ab9dcbd3a2fa",
+        "avgImportanceScore": 0.3059938622676229
+    },
+    {
+        "_id": "61dbf1dcd18a2b6e00d9f311",
+        "avgImportanceScore": 0.30521430196634963
+    },
+    {
+        "_id": "60c567e691e011368ce8c0f2",
+        "avgImportanceScore": 0.30521430196634963
+    },
+    {
+        "_id": "6173f1bc91e0118698c04819",
+        "avgImportanceScore": 0.3049643539550431
+    },
+    {
+        "_id": "60cafe9e91e011b3293742e4",
+        "avgImportanceScore": 0.3048562790733471
+    },
+    {
+        "_id": "615fb6ef5244ab9dcb9c3c26",
+        "avgImportanceScore": 0.30404949442551554
+    },
+    {
+        "_id": "6125b0135244ab9dcb38b4e5",
+        "avgImportanceScore": 0.30367038649359773
+    },
+    {
+        "_id": "61e781675244ab9dcbf9a686",
+        "avgImportanceScore": 0.30367038649359773
+    },
+    {
+        "_id": "61a5f4fe6750f84218691f6b",
+        "avgImportanceScore": 0.30347620828131694
+    },
+    {
+        "_id": "60f2b1d05244ab9dcbbbdfe7",
+        "avgImportanceScore": 0.30289474098008756
+    },
+    {
+        "_id": "61f8a4c35aee126c0fee034d",
+        "avgImportanceScore": 0.3023369811356604
+    },
+    {
+        "_id": "60bdde338585e32c38af510f",
+        "avgImportanceScore": 0.30177486049775926
+    },
+    {
+        "_id": "60a4db4091e011e398b0cf06",
+        "avgImportanceScore": 0.3016933967295948
+    },
+    {
+        "_id": "608fc0ea91e01142b70f24a7",
+        "avgImportanceScore": 0.30133672387713173
+    },
+    {
+        "_id": "611106eb91e0117e7f3cdaa9",
+        "avgImportanceScore": 0.3010829925584659
+    },
+    {
+        "_id": "6065b38291e011d10ad615b2",
+        "avgImportanceScore": 0.29788056305928406
+    },
+    {
+        "_id": "600fe86ad4150a363c2461f4",
+        "avgImportanceScore": 0.2965906447460903
+    },
+    {
+        "_id": "61bff4265244ab9dcb79c422",
+        "avgImportanceScore": 0.2935777409470323
+    },
+    {
+        "_id": "60cae12b91e011b32937419e",
+        "avgImportanceScore": 0.29341941583532466
+    },
+    {
+        "_id": "619472d35244ab9dcbd2dc0b",
+        "avgImportanceScore": 0.29341941583532466
+    },
+    {
+        "_id": "60cab50d91e011b329373f81",
+        "avgImportanceScore": 0.29341941583532466
+    },
+    {
+        "_id": "603c766f9e795ea1fb8225d9",
+        "avgImportanceScore": 0.29278603998368924
+    },
+    {
+        "_id": "60bdde338585e32c38af4f97",
+        "avgImportanceScore": 0.2922136350504189
+    },
+    {
+        "_id": "61120a875244ab9dcb0efdbc",
+        "avgImportanceScore": 0.29190525259905914
+    },
+    {
+        "_id": "618cf4845244ab9dcb6ffa1f",
+        "avgImportanceScore": 0.28765435610605977
+    },
+    {
+        "_id": "6191faf46750f83ab86fb921",
+        "avgImportanceScore": 0.28765435610605977
+    },
+    {
+        "_id": "6198833e5244ab9dcb119fa0",
+        "avgImportanceScore": 0.28765435610605977
+    },
+    {
+        "_id": "5ff68eedd4150a363cd9084a",
+        "avgImportanceScore": 0.28729130060193475
+    }
+]
