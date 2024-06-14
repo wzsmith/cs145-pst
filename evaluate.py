@@ -99,7 +99,7 @@ def influential_papers(validate_json_filepath, submission_json_filepath):
     json_dict_keys = ["_id", "avgImportanceScore"]
     json_dict_list = [dict(zip(json_dict_keys, list(paper))) for paper in paper_influence_dict]    
     
-    with open(os.getcwd() + "/influentialPapers.json", "w") as outfile:
+    with open(os.path.join(os.getcwd(), "influentialPapers.json"), "w") as outfile:
         json.dump(json_dict_list, outfile, indent=4)
     return json_dict_list
 
