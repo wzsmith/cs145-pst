@@ -46,5 +46,8 @@ final_predictions = majority_vote(all_predictions)
 ```
 * Collects the predictions from both models (GPT-2 and BERT).
 * Uses a majority voting mechanism to determine the final predictions.
+* majority_vote is a previous function already defined, simply takes an array of values and takes the average, then rounds it up
+
+## logreg.py
 
 
