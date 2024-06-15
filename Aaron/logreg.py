@@ -502,9 +502,7 @@ def gen_kddcup_valid_submission_bert(model_name="scibert"):
         X = np.array(y_scores)
         X_scaled = StandardScaler().fit_transform(X)
 
-        # Assuming you have labels for your training data
-        # Replace `train_labels` with your actual labels
-        train_labels = [0] * len(bib_sorted)  # Replace with your actual labels
+        train_labels = [0, 1] * len(bib_sorted)  # Replace with your actual labels
         X_train, X_val, y_train, y_val = train_test_split(X_scaled, train_labels, test_size=0.2, random_state=42)
 
         lr = LogisticRegression()
