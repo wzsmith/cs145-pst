@@ -120,3 +120,18 @@ There are two notebooks in this repository.
 ### evaluate.py
 
 Our algorithm for finding the MAP score offline.
+
+Inside of `evaluate.py` change the filepaths inside of the main method at the bottom to the appropriate locations.
+
+```python
+# Change filepaths to proper locations when running locally (Line 107)
+validate_json_filepath = ".../paper_source_trace_valid_wo_ans.json"
+submission_json_filepath = ".../valid_submission_scibert.json"
+annotated_result_filepath = ".../bib_context_valid_label.txt"
+```
+
+After that execute the file. Output should be similar to `influentialPapers.json` in this repository.
+
+```bash
+python evaluate.py
+```
