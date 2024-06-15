@@ -25,6 +25,8 @@ The instructions below will walk you through with reproducing an output near acc
 
 ## Setup (Datasets and Installation)
 
+We recommend performing this on a machine with at least a NVIDIA GPU, 7.5 GB of RAM and at least 50-100 GB available on disk. With these specifications you can expect each model iteration to take about 2.5-3 hours to train.
+
 Before proceeding, make sure to download the appropriate datasets. Create a folder called "data" in the repository and then download all the required datasets. The following bash commands below may help.
 
 We utilize the provided public PST dataset provided by the competition organizers and the 
