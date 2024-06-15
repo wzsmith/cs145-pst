@@ -50,4 +50,10 @@ final_predictions = majority_vote(all_predictions)
 
 ## logreg.py
 
+## oldbert.py
 
+* original file, was using it to keep track of changes
+
+## testing.py
+
+* every change I made in bert.py such as chatglm_MV.py and logreg.py was added and I inputted it here, where testing.py samples
