@@ -143,7 +143,6 @@ dmypy.json
 .pyre/
 
 # Add ons
-influentialPapers.json
 result.txt
 myenv
 ensemble/other_dumps

@@ -1,1 +1,0 @@
-fine-tune glm-2b epoch 1 average map 0.15643463634349988 280
