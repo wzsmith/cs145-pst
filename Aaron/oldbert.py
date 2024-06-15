@@ -26,12 +26,13 @@ logger = logging.getLogger(__name__)
 
 MAX_SEQ_LENGTH=512
 
+
 def prepare_bert_input():
     x_train = []
     y_train = []
     x_valid = []
     y_valid = []
-
+    print()
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_train_ans.json")
     n_papers = len(papers)
@@ -298,7 +299,6 @@ def train(year=2023, model_name="scibert"):
 
     criterion = torch.nn.CrossEntropyLoss(weight=class_weight)
 
-
     '''
     ##### Sampling start
     import random
@@ -319,6 +319,10 @@ def train(year=2023, model_name="scibert"):
 
     #### Sampling end
     '''
+    # train_features_sample = convert_examples_to_inputs(train_texts_sample, train_labels_sample, MAX_SEQ_LENGTH, tokenizer, verbose=0)
+    # train_dataloader_sample = get_data_loader(train_features_sample, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
+
+    ### OLD CODE: 
 
     train_features = convert_examples_to_inputs(train_texts, train_labels, MAX_SEQ_LENGTH, tokenizer, verbose=0)
     dev_features = convert_examples_to_inputs(dev_texts, dev_labels, MAX_SEQ_LENGTH, tokenizer)
@@ -327,9 +331,11 @@ def train(year=2023, model_name="scibert"):
     train_dataloader = get_data_loader(train_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=True)
     dev_dataloader = get_data_loader(dev_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
 
+    ####
+
     GRADIENT_ACCUMULATION_STEPS = 1
     NUM_TRAIN_EPOCHS = 20
-    LEARNING_RATE = 10e-5 # TUNED HYPER PARAMETER
+    LEARNING_RATE = 5e-5
     WARMUP_PROPORTION = 0.1
     MAX_GRAD_NORM = 5
 
@@ -400,7 +406,76 @@ def train(year=2023, model_name="scibert"):
             
         loss_history.append(dev_loss)
 
-def gen_kddcup_valid_submission_bert(model_name="scibert"):
+### ADDING MAJORITY VOTE - AARON
+
+def majority_vote(predictions):
+    """
+    Compute the majority vote from a list of predictions.
+
+    Args:
+    predictions (list): List of prediction arrays or lists.
+
+    Returns:
+    numpy.ndarray: Array of majority vote predictions.
+    """
+    predictions = np.array(predictions)
+    majority = np.mean(predictions, axis=0)  # You can also use np.median for majority vote
+    return np.round(majority).astype(int)
+
+## FOR VISUALIZATIONS
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+def evaluate_with_attention(model, dataloader, device, criterion):
+    model.eval()
+    
+    eval_loss = 0
+    nb_eval_steps = 0
+    predicted_labels, correct_labels = [], []
+    attention_weights = []  # Store attention weights
+
+    for step, batch in enumerate(tqdm(dataloader, desc="Evaluation iteration")):
+        batch = tuple(t.to(device) for t in batch)
+        input_ids, input_mask, segment_ids, label_ids = batch
+
+        with torch.no_grad():
+            r = model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+            logits = r[1]
+            tmp_eval_loss = criterion(logits, label_ids)
+
+            # Extract attention weights
+            attention_weights_batch = model.attention_weights[-1].detach().cpu().numpy()
+            attention_weights.append(attention_weights_batch)
+
+        outputs = np.argmax(logits.to('cpu'), axis=1)
+        label_ids = label_ids.to('cpu').numpy()
+
+        predicted_labels += list(outputs)
+        correct_labels += list(label_ids)
+
+        eval_loss += tmp_eval_loss.mean().item()
+        nb_eval_steps += 1
+
+    eval_loss = eval_loss / nb_eval_steps
+
+    correct_labels = np.array(correct_labels)
+    predicted_labels = np.array(predicted_labels)
+
+    attention_weights = np.concatenate(attention_weights, axis=0)  # Concatenate attention weights from all batches
+
+    # Plot heatmap of attention weights
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(attention_weights.mean(axis=0), cmap="viridis")
+    plt.xlabel("Query")
+    plt.ylabel("Key")
+    plt.title("Attention Heatmap")
+    plt.show()
+
+    return eval_loss, correct_labels, predicted_labels
+
+# Modify your training loop to use evaluate_with_attention instead of evaluate
+                 
+def gen_kddcup_valid_submission_bert(model_name="scibert", num_votes=3):
     print("model name", model_name)
     data_dir = join(settings.DATA_TRACE_DIR, "PST")
     papers = utils.load_json(data_dir, "paper_source_trace_valid_wo_ans.json")
@@ -468,24 +543,31 @@ def gen_kddcup_valid_submission_bert(model_name="scibert"):
         test_features = convert_examples_to_inputs(contexts_sorted, y_score, MAX_SEQ_LENGTH, tokenizer)
         test_dataloader = get_data_loader(test_features, MAX_SEQ_LENGTH, BATCH_SIZE, shuffle=False)
 
-        predicted_scores = []
-        for step, batch in enumerate(test_dataloader):
-            batch = tuple(t.to(device) for t in batch)
-            input_ids, input_mask, segment_ids, label_ids = batch
+        all_predicted_scores = [] # Store predictions from multiple runs of the model
+        for _ in range(num_votes):
+            print("Vote: ", _) # Print current vote
+            predicted_scores = []
+            for step, batch in enumerate(test_dataloader):
+                batch = tuple(t.to(device) for t in batch)
+                input_ids, input_mask, segment_ids, label_ids = batch
 
-            with torch.no_grad():
-                r = model(input_ids, attention_mask=input_mask,
-                                            token_type_ids=segment_ids, labels=label_ids)
-                tmp_eval_loss = r[0]
-                logits = r[1]
+                with torch.no_grad():
+                    r = model(input_ids, attention_mask=input_mask,
+                                                token_type_ids=segment_ids, labels=label_ids)
+                    tmp_eval_loss = r[0]
+                    logits = r[1]
 
-            cur_pred_scores = logits[:, 1].to('cpu').numpy()
-            predicted_scores.extend(cur_pred_scores)
+                cur_pred_scores = logits[:, 1].to('cpu').numpy()
+                predicted_scores.extend(cur_pred_scores)
+
+            all_predicted_scores.append(predicted_scores) # Add predictions to the list of multiple runs
         
-        for ii in range(len(predicted_scores)):
+        for ii in range(len(all_predicted_scores[0])): # Just use the first predictions for the length of this loop
             bib_idx = int(bib_sorted[ii][1:])
             # print("bib_idx", bib_idx)
-            y_score[bib_idx] = float(utils.sigmoid(predicted_scores[ii]))
+            votes = [float(utils.sigmoid(all_predicted_scores[vote_idx][ii])) for vote_idx in range(num_votes)] # Apply the sigmoid to every prediction made
+            print(votes) # Test
+            y_score[bib_idx] = float(np.mean(votes)) # Take the mean of all the predictions, could try median too
         
         sub_dict[cur_pid] = y_score
     
@@ -493,6 +575,8 @@ def gen_kddcup_valid_submission_bert(model_name="scibert"):
 
 
 if __name__ == "__main__":
+    # prepare_train_test_data_for_bert()
     prepare_bert_input()
     train(model_name="scibert")
+    # eval_test_papers_bert(model_name="scibert")
     gen_kddcup_valid_submission_bert(model_name="scibert")
