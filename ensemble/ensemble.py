@@ -23,12 +23,11 @@ def load_data(directory):
 """
 Applies the appropriate ensemble method to the inputted data
 data: A list of the jsons loaded (dict: key = filename, value = [accuracy, data])
-method: can be any of the following: mean, median, moe
-(moe = "mixture of experts")
+method: can be any of the following: mean, median, wmean
 
 returns: The ensemble method applied to the data
 """
-def apply_ensemble_methods(data, method="mean"):
+def apply_ensemble_methods(data, method="wmean"):
     predictions = [data[filename]["data"] for filename in data]
 
     result = {}
@@ -51,7 +50,7 @@ def apply_ensemble_methods(data, method="mean"):
                 result[id][i] = np.median(scores)
 
             # Mixture of experts
-            if method == "moe":
+            if method == "wmean":
                 # Weights for each model
                 accuracies = np.array([data[filename]["accuracy"] for filename in data])
                 accuracies = accuracies / np.sum(accuracies) # Normalize the weights

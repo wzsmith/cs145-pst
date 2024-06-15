@@ -1,4 +1,9 @@
-# paper-source-trace
+# cs145-pst
+
+UCLA CS145: Introduction to Data Mining
+Final Project: 2024 KDD-Cup PST Submission
+Team: CS145 Data Miners
+Tyler Tran, Roland Yang, Henry Liu, Aaron Chien, William Smith, Sreejeet Sreenivasan
 
 ## Prerequisites
 - Linux
@@ -7,89 +12,111 @@
 
 ## Getting Started
 
-Presentation Link:
-
+Video Presentation Link:
 https://www.youtube.com/watch?v=hdaPMrQ4l_Q&ab_channel=whyroland
 
+Presentation Slides:
+https://docs.google.com/presentation/d/1XTWjGr-PaRbw-ZiRx-aJ2kl-hdAnEY7Hb70ba-o2hu0/edit?usp=sharing
 
+Report Paper:
+https://drive.google.com/file/d/1W5gOWutFrJJSFvq2idvjhc6ao94s0f2H/view?usp=sharing
 
-## Ensemble Folder
-In order to get ensemble.py to work there's several setup instructions:
+The instructions below will walk you through with reproducing an output near accurate to our final submission output (our actual final submission that achieved a score of ~0.37687 can be found in this folder as `final_submission.json`)
 
-1. Make two folders called "inputs" and "outputs"
-2. Drag all of your kddcup json submissions into "inputs"
-3. For all of the jsons in submissions, modify it such that the last 5 digits of the file name
-contains the digits of the accuracy score online (ex. 0.34387 on website = 34387)
-- Filename example: "valid_submission_scibert_34387.json"
-4. In ensemble.py in the main method, change the "method" parameter to the appropriate online
-- Options are: mean, median, moe
-5. Run "python ensemble.py" and your output file should be in your outputs folder
+## Setup (Datasets and Installation)
 
+Before proceeding, make sure to download the appropriate datasets. Create a folder called "data" in the repository and then download all the required datasets. The following bash commands below may help.
 
-## Chain of Thought Notebook
+We utilize the provided public PST dataset provided by the competition organizers and the 
 
-1. Open PST.ipynb
-2. Run all Cells
+```bash
+# Make data directory in root folder and navigate into it
+mkdir data
+cd data
 
+# Download the PST dataset
+wget https://www.dropbox.com/scl/fi/namx1n55xzqil4zbkd5sv/PST.zip?rlkey=impcbm2acqmqhurv2oj0xxysx&dl=1
+unzip PST.zip # May be a different name than "PST.zip"
 
-## AARON's Folder
-
-  
-## To Get Started
-
-To simply run this, follow the instructions from discussion 4 slides 
-
-Download the dataset
-* wget https://www.dropbox.com/scl/fi/namx1n55xzqil4zbkd5sv/PST.zip?rlkey=impcbm2acqmqhurv2oj0xxysx&dl=1
-* unzip PST.zip
-* wget https://opendata.aminer.cn/dataset/DBLP-Citation-network-V16.zip
-* unzip DBLP-Citation-network-V16.zip
-
-Put the unzipped PST directory into data/ and unzipped DBLP dataset into data/PST/
-
-Clone the baseline repository
-* git clone https://github.com/THUDM/paper-source-trace.git
-* cd paper-source-trace
-
-Install required packages
-* pip install -r requirements.txt
-
-You would then pull this repo into the environment
-* git clone https://github.com/wzsmith/cs145-pst.git
-
-And you would continue to run any python script by
-* python NAME_OF_FILE.py
-
-## chatglm_MV.py
-
-* added chatglm on top of the base code
+# Download the DBLP Citation Network
+wget https://opendata.aminer.cn/dataset/DBLP-Citation-network-V16.zip
+unzip DBLP-Citation-network-V16.zip
 ```
-chatgpt_responses = []
-  for context in contexts_sorted:
-    input_ids = chatgpt_tokenizer.encode(context, return_tensors="pt", max_length=512, truncation=True).to(device)
-    output = chatgpt_model.generate(input_ids, max_length=100, num_return_sequences=1, pad_token_id=chatgpt_tokenizer.eos_token_id)
-    response = chatgpt_tokenizer.decode(output[0], skip_special_tokens=True)
-    chatgpt_responses.append(response)
-```
-* For each context, generates a response using the GPT-2 model and decodes it. Stores these responses in a list.
-```
-chatgpt_predictions = [1 if response.startswith("positive") else 0 for response in chatgpt_responses]
-```
-* Converts the GPT-2 responses into binary predictions: 1 if the response starts with "positive", otherwise 0
-```
-all_predictions = [chatgpt_predictions, y_score]
-final_predictions = majority_vote(all_predictions)
-```
-* Collects the predictions from both models (GPT-2 and BERT).
-* Uses a majority voting mechanism to determine the final predictions.
-* majority_vote is a previous function already defined, simply takes an array of values and takes the average, then rounds it up
 
-## logreg.py
+Put the unzipped PST folder into `data/` and the DBLP dataset into `data/PST`
 
-## oldbert.py
+After downloading and setting up the datasets- make sure you have all necessary dependencies installed. If at any point you come across a missing package error in running any of the scripts just `pip install` it.
+```
+pip install -r requirements.txt
+```
 
-* original file, was using it to keep track of changes
+## Training
 
-## testing.py
+We need to train 4 different SciBERT models and then properly ensemble their results using `ensemble.py` in `ensemble/`.
 
-* every change I made in bert.py such as chatglm_MV.py and logreg.py was added and I inputted it here, where testing.py samples
+```bash
+# Train SciBERT model
+python bert.py
+# output at out/kddcup/scibert/
+```
+
+The output can be found in `out/kddcup/scibert` under the name of `valid_submission_scibert.json`. Following this run an evaluation on the outputted json by whatever methodology you choose to obtain a MAP score. We did so by submitting it online.
+
+Rename the file such that the last 5 characters before the file extension "json" contain the digits pertaining to your MAP score.
+
+(Ex. 0.34387 score = 34387, filename would be "valid_submission_scibert_34387.json")
+
+Move the renamed file containing the predictions into `ensemble/inputs/`
+
+Repeat the aformentioned training steps explained above 4 times (or however many times you decide to choose, 4 was just our experimental optimal value).
+
+## Ensembling
+
+You should now have 4 jsons inside of `ensemble/inputs/` containing renamed prediction files using the file naming convention explained above. (Feel free to refer to the `README.md` inside the `ensemble/` folder for the same instructions below)
+
+If you haven't done so yet, create a directory called `outputs` inside of `ensemble/`.
+
+In `ensemble.py` in the main method, change the `method` parameter to the appropriate option. To reproduce our results set it to `"wmean"`
+
+```python
+# ... Below is Lines 30/31
+def apply_ensemble_methods(data, method="wmean"): # method parameter
+    predictions = [data[filename]["data"] for filename in data]
+# ...
+```
+
+Execute the script and your final output should be in `ensemble/outputs/` under the name `ensemble.json`.
+
+```bash
+# Ensemble all of the predictions
+python ensemble.py
+# output at ensemble/outputs/
+```
+
+(Note: we provided the 4 original prediction jsons that we ensembled for our final submission in the folder)
+
+## Explanation of Other Files
+
+All work relevant to the project report
+
+### Aaron's Folder
+
+The folder with the name `Aaron` contains all of Aaron's code contributions to the project. Opening the folder and accessing the `README.md` in that folder specifically will provide you with further information on all of his code and how to execute it
+
+### Notebooks
+
+There are two notebooks in this repository.
+
+`Chain_Of_Thought.ipynb` contains our attempt at using Chain of Thought with LLMs to make a PST model. You can run it by following the instructions below.
+
+1. Open Chain_Of_Thought.ipynb
+2. Run all of the cells
+
+`PST_Data_Trend_Visualizations.ipynb` contains code used to create the visualizations shown in the project report. You can run it by using the instructions below.
+
+1. Open PST_Data_Trend_Visualizations.ipynb
+2. Run all of the cells
+
+### evaluate.py
+
+Our algorithm for finding the MAP score offline.
